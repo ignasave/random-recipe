@@ -1,16 +1,22 @@
 const getMealBtn = document.querySelector("#get_meal");
 const fullMeal = document.querySelector("#meal");
 
-getMealBtn.addEventListener("click", () => {
-  fetch("https://www.themealdb.com/api/json/v1/1/random.php")
-    .then((response) => response.json())
-    .then((data) => {
+getMealBtn.addEventListener("click", async () => {
+  try {
+    const response = await fetch(
+      "https://www.themealdb.com/api/json/v1/1/random.php"
+    );
+    const data = await response.json();
+    if (data.meals[0]) {
       const meal = formatMeal(data.meals[0]);
       fullMeal.innerHTML = getMealHTML(meal);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+    } else {
+      fullMeal.innerHTML = `<p>No meal found</p>`;
+    }
+  } catch (error) {
+    console.error(error);
+    fullMeal.innerHTML = `<p>There was an error</p>`;
+  }
 });
 
 const formatMeal = (meal) => {
@@ -47,19 +53,26 @@ const formatIngredientsFromMeal = (meal) => {
   return ingredients;
 };
 
-
 const getMealHTML = (meal) => {
   return `<div class="meal-container">
         <div class="columns">
         <img src="${meal.mealThumb}" alt="Meal Image">
         <div class="recipe-title">${meal.mealName}</div>
-        ${meal.category ? `<p class= "style-p">Category: ${meal.category}</p>` : ""}
+        ${
+          meal.category
+            ? `<p class= "style-p">Category: ${meal.category}</p>`
+            : ""
+        }
         ${meal.area ? `<p class= "style-p">Area: ${meal.area}</p>` : ""}
         ${meal.tags ? `<p class= "style-p">Tag: ${meal.tags}</p>` : ""}
         <div class="ingredients"><p class="style-p">Ingredients:</p>
         <ul>
-        ${meal.ingredients.map((ingredient) =>
-            ` <li>${ingredient.name}: ${ingredient.measure}</li>`).join("")}				
+        ${meal.ingredients
+          .map(
+            (ingredient) =>
+              ` <li>${ingredient.name}: ${ingredient.measure}</li>`
+          )
+          .join("")}				
             </ul>
             </div>
             <br>
@@ -67,7 +80,7 @@ const getMealHTML = (meal) => {
          </div>
          </div>
          ${
-            meal.youtube
+           meal.youtube
              ? `<div class="video-recipe">
                 Video Recipe:
              <div class= "video-frame">
@@ -76,7 +89,5 @@ const getMealHTML = (meal) => {
             </div>`
              : ""
          }
-                `
+                `;
 };
-
-
